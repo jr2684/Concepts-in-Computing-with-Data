@@ -1,0 +1,16 @@
+v | OK F W S | Context
+/ |  0       | Tests for minkowski()- |  1       | Tests for minkowski()\ |  2       | Tests for minkowski()| |  3       | Tests for minkowski()/ |  4       | Tests for minkowski()- |  5       | Tests for minkowski()[1] "x and y have different lengths"
+\ |  5 1     | Tests for minkowski()| |  6 1     | Tests for minkowski()/ |  7 1     | Tests for minkowski()x |  7 1     | Tests for minkowski() [0.6 s]
+--------------------------------------------------------------------------------
+test-minkowski.R:17: failure: minkowski works as expected
+`minkowski(point4, point5, p = 1)` did not throw an error.
+--------------------------------------------------------------------------------
+/ |  0       | Test for reverse_chars- |  1       | Test for reverse_chars\ |  2       | Test for reverse_chars| |  3       | Test for reverse_chars/ |  4       | Test for reverse_chars- |  5       | Test for reverse_chars\ |  6       | Test for reverse_charsv |  6       | Test for reverse_chars
+
+== Results =====================================================================
+Duration: 1.1 s
+
+OK:       13
+Failed:   1
+Warnings: 0
+Skipped:  0

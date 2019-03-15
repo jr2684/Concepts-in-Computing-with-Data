@@ -1,0 +1,9 @@
+---
+title: "warmup02-josh-reinheimer"
+author: "Josh Reinheimer"
+date: "15 Februar 2019"
+output: html_document
+---
+
+load("data/tents.RData")
+ls()

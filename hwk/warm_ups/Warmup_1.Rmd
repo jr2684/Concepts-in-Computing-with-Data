@@ -1,0 +1,81 @@
+---
+title: "Warm Up 1"
+author: "Josh Reinheimer"
+date: "15 Februar 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#1. Game of Thrones
+## Tyrion Lannister
+
+> Tyrion Lannister: "I'm guilty of a far more monstrous crime: I'm guilty of being a dwarf!" 
+
+
+<img src="https://vignette.wikia.nocookie.net/gameofthrones/images/8/86/Tyrion_S8_Cropped.jpg/revision/latest?cb=20190206214225" alt="Kitten"
+	title="A cute kitten" width="150" height="100" />
+
+|Basic Information | |
+|---|------------------------|
+|Status | Alive|
+|Age | 38 in Season 7|
+|Date of birth | 266  AC |
+|Origin | Casterly Rock |
+|Allegiance | House Lannister (by birth) <br/> House Targeyen (by pledge)|
+| Predecessor | {Eddard Stark}(Hand of the King) <br/> {Petyr Baelish}(Master of Coin)|
+|Successor | {Tywin Lannister}(Hand of the Kind) <br/> {Mace Tyrell}(Master of Coin)|
+|Culture | Andal|
+|Religion | Faith of the Seven|
+|Father | {Tywin Lannister}|
+|Mother | {Joanna Lannister}|
+
+# 2
+## Baked Buffalo Wings
+  All right you sweathogs, it's time to make the dish of dishes, the grand poobah of snacks for your sport viewing delight. Could we be talking about celery and ranch? Fuck no, we aren't rabbits? Are we talking about pretzels? Do we look like your grandmother's knittng group?
+
+  No we are talking about the buffalo wing. That snack amoung snacks. The dish that just won't quit. In a few easy steps, I will show you how to make this dish on your own. Let's get to it.
+
+  For this recipe you will need the following ingredients:
+
+  * 1 to 4 pounds chicken wings that have been cut into flats and drumettes
+  * 1 1/2 teaspoons to 2 tablespoons baking powder (using 1 1/2 teaspoons per pound)
+  * 1 to 4 teaspoons kosher salt (using 1 teaspoon per pound; use less salt if you’re not using Diamond brand)
+  * 2 tablespoons hot sauce (Frank’s RedHot is traditional) per pound of wings
+  * 1 1/2 to 2 tablespoons unsalted butter per pound of wings
+  * Homemade Blue Cheese Dressing 
+  
+  In addition, the following kitchen tools are required:
+  
+  * sheet tray
+  * cooling rack
+  * bowls
+  * saucepan
+  * whisk
+  
+  Making this dish is easy enough. First cut 
+  
+
+# 3
+## Quadratic Equation
+  The quadratic equation is one of the most well known, and hated, of formulas to come from algebra. In short, the equation is used to solve for the independent variable of a 2nd order real valued polynomial equation, or
+  \begin{equation}
+  ax^{2} + bx + c = 0
+  \end{equation}
+  Rather than factoring the polynomial, there exists a closed form equation that will give the values of x:
+  \begin{equation}
+  x = -b \pm \frac{\sqrt{b^{2} - 4ac}}{2a}
+  \end{equation}
+One reaches the quadratic equations as follows:
+\begin{equation}
+\begin{split}
+ax^{2} + bx + c & = 0 \\
+4a^{2}x^{2} + 4abx + 4ac & = 0 \\
+4a^{2}x^{2} + 4abx & = 4ac \\
+(2ax + b)^{2} &= b^{2} - 4ac \\
+2ax + b &= \pm\sqrt{b^{2} - 4ac} \\
+2ax &= -b \pm\sqrt{b^{2} - 4ac} \\
+x &= \frac{b\pm\sqrt{b^{2} - 4ac}}{2a} 
+\end{split}
+\end{equation}

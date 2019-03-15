@@ -1,0 +1,184 @@
+---
+title: "lab-7-joshua-reinheimer"
+author: "Josh Reinheimer"
+date: "11 März 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+One of the most important skills in programming is being able to intelligently manipulate text data. This include being able to summarize text documents, determine the overall sentiment of a text, and being able to classify parts of documents. 
+
+For this assignment, we will be analyzing tweets and seeing what type of details can be gleaned from them. Let's get started
+
+First, the necessary data file has to be imported. By default, the character strings are imported as factors. To avoid this, we use the statement stringsAsFactors = FALSE.
+```{r}
+data = read.csv("data/text-emotion.csv",stringsAsFactors = FALSE)
+```
+## Number of characters per tweet
+The first step is to look at the number of characters that are in each tweet. While the tweets in this dataset are limited to 140 characters, some tweets will have more. This is due to remnant XML tags from when the tweets were scraped.
+```{r}
+tweet_length <- nchar(data$content)
+print(summary(tweet_length))
+```
+We see that the average tweet is 73 characters in length, while the max is at 184. To see the distribution of tweet lengths, we will look at a histogram. The bins of the histogram are 5 characters wide.
+```{r}
+hist(tweet_length, breaks = seq(min(tweet_length),(max(tweet_length)+2),5))
+```
+
+The next logical step is to test the boundaries. Are there any tweets of length 0? Of length 1? What is the longest tweets?
+```{r}
+df <- data.frame(tweet_length)
+#tweets of length 0
+print(length(tweet_length[tweet_length == 0]))
+
+#tweets of length 1
+
+#total number
+print(length(tweet_length[tweet_length == 1]))
+# string locations
+indices <- which((tweet_length == 1) == TRUE)
+#contents
+tweet_content <- data$content[indices]
+for(i in tweet_content){
+  print(i)
+}
+
+#tweets of maximum length
+
+#total number
+print(length(tweet_length[tweet_length == max(tweet_length)]))
+# string location(s)
+indices <- which((tweet_length == max(tweet_length)) == TRUE)
+#contents
+tweet_content <- data$content[indices]
+for(i in tweet_content){
+  print(i)
+}
+
+```
+### Sentiment Analysis
+After looking at the lengths of the tweets, we are interested in how the various tweets are categorized. The first thing we will do is look at the possible characterisations of the tweets. 
+```{r}
+print(unique(data$sentiment))
+```
+The next question is how often do these unqiue sentiments occur?
+```{r}
+library(ggplot2)
+sentiment_freq <- table(data$sentiment)
+order_list <- order(table(data$sentiment))
+barplot(sentiment_freq[order_list], horiz = TRUE)
+```
+
+Finally, we are interested in if the length of the tweet is different for each sentiment
+```{r}
+averages = c()
+for(i in unique(data$sentiment)){
+lengths = c()
+  indexes_sentiment <- which((data$sentiment == i) == TRUE)
+  lengths <- data$content[indexes_sentiment]
+  temp = rep(0,length(lengths))
+  for(i in 1:length(lengths)){
+    temp[i] <- nchar(lengths[i])
+  }
+  averages <- c(averages,mean(temp))
+}
+print(rbind(unique(data$sentiment),averages))
+```
+
+### Author names
+There are several elements that we will test with the usernames. First, usernames may only be 15 characters long. We will check to see if there are any usernames longer than 15 characters, and if they exist, display them.
+```{r}
+for(i in data$author){
+  if(nchar(i) > 15){
+    print(i)
+  }
+}
+```
+From this loop, we see that there are no usernames that have names with more than 15 characters. 
+
+The next step is to see if any usernames contain characters that are not alphanumeric or underscores. The easiest way to check this is to use regular expressions. If any usernames contain non alphanumeric characters, then they will be displayed
+```{r}
+library(stringr)
+for(i in data$author){
+  if(!(is.na(str_match(i,"\\W")))){
+    print(i)
+    print(str_match(i,"\\W"))
+  }
+}
+```
+Finally, we are interested in the shortest usernames. We will check to see how many characters are in the shortest usernames and then display these usernames
+```{r}
+char_username <- nchar(data$author)
+unique_char_username <- unique(char_username)
+sorted_unique_char_username <- sort(unique_char_username)
+# smallest number of elements
+print(sorted_unique_char_username[1])
+# usernames that have the smallest number of elements
+print(data$author[nchar(data$author) == 2])
+```
+
+### Various Symbols and Strings
+In this section, we will be using regex to find certain characters and substrings that exist inside of tweets and usernames. It may be that one has patterns that appear regularly, and it is important to be able to mine these patterns from a large text corpus.
+
+```{r}
+# number of tweets that contain a caret symbol ("^")
+carets <- str_extract(data$content,"\\^")
+print(sum(!is.na(carets)))
+
+# number of tweets that contain three or more consecutive dollar signs ("$$$(+)")
+
+dollarsigns <- str_extract(data$content, "[\\$]{3,}")
+print(sum(!is.na(dollarsigns)))
+
+# first ten tweets that do not contain the letters "a" or "A"
+noa = c()
+for(i in data$content){
+  if(length(grep("[aA]", i)) == 0){
+    noa = c(i,noa)
+  }
+}
+print(noa[1:10])
+
+# number of explanation marks per tweet
+numberexpl = rep(0,length(data$content))
+for(i in 1:length(data$content)){
+  numberexpl[i] <- nchar(paste0(unlist(str_extract_all(data$content[i],"!{1,}")),collapse = ""))
+}
+summary(numberexpl)
+
+#tweet with largest number of explanation points
+print(data$content[which(numberexpl == max(numberexpl))])
+
+#number of tweets containing omg or OMG
+temp <- str_extract_all(data$content, "\\W*((?i)omg(?-i))\\W*")
+
+#table of averages for different sentiments
+
+unique_sentiments <- unique(data$sentiment)
+n <- length(unique_sentiments)
+table = data.frame(unique_sentiments, lower = numeric(n), upper = numeric(n), digit = numeric(n), punct = numeric(n), spaces = numeric(n))
+for(i in 1:n){
+  temp <- data[data$sentiment == unique_sentiments[i],]
+  lower = rep(0,length(temp$content))
+  upper <- rep(0,length(temp$content))
+  punct <- rep(0,length(temp$content))
+  digit <- rep(0,length(temp$content))
+  spaces <- rep(0,length(temp$content))
+  for(j in 1:length(temp$content)){
+    lower[j] <- nchar(paste0(unlist(str_extract_all(temp$content[j],"[:lower:]+")),collapse = ""))
+    upper[j] <- nchar(paste0(unlist(str_extract_all(temp$content[j],"[:upper:]+")),collapse = ""))
+    punct[j] <- nchar(paste0(unlist(str_extract_all(temp$content[j],"[:punct:]+")),collapse = ""))
+    digit[j] <- nchar(paste0(unlist(str_extract_all(temp$content[j],"\\d+")),collapse = ""))
+    spaces[j] <- nchar(paste0(unlist(str_extract_all(temp$content[j],"\\s+")),collapse = ""))
+  }
+  table$lower[i] = mean(lower)
+  table$upper[i] = mean(upper)
+  table$digit[i] = mean(digit)
+  table$punct[i] = mean(punct)
+  table$spaces[i] = mean(spaces)
+}
+```

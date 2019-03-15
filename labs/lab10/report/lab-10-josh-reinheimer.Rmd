@@ -1,0 +1,141 @@
+---
+title: "lab10-josh-reinheimer"
+author: "Josh Reinheimer"
+date: "6 März 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(dplyr)
+library(stringr)
+library(plotly)
+library(ggmap)
+
+dat <- read.csv("../data/mobile-food-sf.csv", stringsAsFactors = FALSE)
+```
+## Introduction
+Many of the datasets that one will run across are extremely messy. There may be misspellings, abbreviations, or different spellings. In order to perform any analysis, the data must be standardized. This is accomplished through a pre-processing phase. In this lab, we will clean a dataset using regular expressions.
+
+The dataset in question is the mobile-food-sf dataset, which provides information about the food trucks in the city of San Francisco.
+
+## Changing times
+The first bit of preprocessing will be to remove the AM and PM characters from the times
+```{r}
+times <- c('12PM', '10AM', '9AM', '8AM', '2PM')
+time_subset = c()
+periods = str_sub(times,start = -2)
+# loop to determine the time. Should be replaced with a 
+# regex statement
+for(i in times){
+  if(nchar(i) == 4){
+    time_subset <- c(time_subset,str_sub(i, start = 1, end = 2))
+  }else{
+    time_subset <- c(time_subset,str_sub(i,start = 1, end = 1))
+  }
+}
+
+hours <- str_replace(times,pattern = 'AM|PM', replacement = '')
+periods <-  str_sub(times,start = -2)
+
+plot_ly(x = unique(periods),
+        y = table(periods),
+        type = 'bar')
+
+```
+From this, we will determine the time based upon a 24 hour clock. This is accomplished by the function convert_to_military_time().
+```{r}
+#' @title 24 hour clock convertor
+#' @description Function takes in a list of times, where
+#' each element is given as a 12 hour time with am or
+#' pm, and converts that given time to its corresponding
+#' value in military time e.g. '8PM' --> 20
+#' @param x. list of elements given in the from (integer 1-12).('PM' or 'AM) (vector of character)
+#' @return y. Corresponding values in military time (vector of integers)
+
+
+convert_to_military_time <- function(x){
+  start24 <- c()
+  for(i in x){
+    if(str_sub(i,start = -2) == "PM"){
+      start24 <- c(start24,as.numeric(str_replace(i,pattern = 'AM|PM', replacement = ''))+12)
+    }else{
+      start24 <- c(start24,as.numeric(str_replace(i,pattern = 'AM|PM', replacement = '')))
+    } 
+  }
+  return(start24)
+}
+```
+After the tie has been calculated, the duration, or how many hours the tuck is open per day, will be calculated.
+
+```{r}
+dat$start <- convert_to_military_time(dat$starttime)
+dat$end <- convert_to_military_time(dat$endtime)
+dat$duration <- dat$end - dat$start
+```
+## Latitude and Longtitude Coordinates
+The latitudinal and longituinal values are given as a string. This is problematic because we wish to use them as float values. A bit of preprocessing is necessary before we can use them This will be a multistep process.
+
+First, we construct a temporary vector that contains the location strings
+```{r}
+temp <- dat$Location
+```
+Next, the values in temp will be converted to lists
+```{r}
+temp <- str_split(str_replace_all(temp, pattern = '\\)|\\(', replacement = ''), pattern = ',')
+```
+The Lat and Lon columns will now be constructed
+```{r}
+Lat <- as.numeric(lapply(temp, function(x) x[1]))
+Lon <- as.numeric(lapply(temp, function(x) x[2]))
+```
+Finally, the columns are appended to the dataframe
+```{r}
+dat$lat <- Lat
+dat$lon <- Lon
+```
+## Plotting the locations on a map
+Once we have the geographical positions, we can plot the trucks on a map. This will be accomplished in a couple of different ways. 
+### Naive Method
+This method will consist of simply taking the longitudinal and latitudinal positions as floats and plotting them
+```{r}
+plot(dat$lon, dat$lat, pch = 19, col = "#77777744")
+```
+
+As seen in the plot, there is no reference, and so we can't tell where each truck is in relation to one another
+
+### ggmap
+To be able to plot using a map, we can take advantage of the ggmap library. Loading this library, the geographic locations are now overlayed upon a map of downtown San Francisco
+```{r}
+dat <- na.omit(dat)
+sbbox <- make_bbox(lon = dat$lon, lat = dat$lat, f = .1)
+sbbox
+sf_map <- get_map(location = sbbox, maptype = "terrain", source = "google")
+ggmap(sf_map) + 
+  geom_point(data = dat, 
+             mapping = aes(x = lon, y = lat), 
+             color = "red", alpha = 0.2, size = 1) + ggtitle("Food trucks in San Francisco") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+## Specific types of food
+Now that we can represent the locations graphically, we are interested in performing a little bit of exploratory analysis. We will do this by looking for food trucks that sell particular types of food, in particular burritos.
+
+```{r}
+foods <- dat$optionaltext[1:10]
+#use regex to consider both upper and lower case words. Another possibility would be to first casefold the 
+# entire dataframe.
+burritos <- str_detect(foods, pattern = "(B|b)urrito")
+#creating a dataframe that consists only of food trucks that serve burritos
+burritos <- dat[str_detect(dat$optionaltext, pattern = "(B|b)urrito") == TRUE,]
+
+ggmap(sf_map) + 
+  geom_point(data = burritos, 
+             mapping = aes(x = lon, y = lat), 
+             color = "blue", alpha = 0.2, size = 1) + ggtitle("Food trucks selling burritos") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```

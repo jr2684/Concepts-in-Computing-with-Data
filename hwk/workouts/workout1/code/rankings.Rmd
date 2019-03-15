@@ -1,0 +1,51 @@
+---
+title: "Workout 1"
+author: "Josh Reinheimer"
+date: "13 März 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Team Rankings
+## Introduction
+In this file, we will be looking at the data that was aggregated in the previous part of the assignment. Using that data we will look at some rankings, particularly regarding the total salary, the total efficiency, and the total number of fouls for each NBA team. 
+
+## Salary rankings
+First, we need to important the necessary data file. 
+```{r}
+teamfile = read.csv("../data/nba2018-teams.csv")
+```
+From all the teams, we wish to see which teams pay the most for their players. To do this, a horizontal bar plot will be created.
+```{r}
+library(ggplot2)
+
+ggplot(teamfile, aes(x = reorder(team,salary), y = salary))  +
+  geom_bar(stat='identity', fill = "grey") + coord_flip() + geom_hline(aes(yintercept=mean(teamfile$salary), colour="red"), size = 2)  + ylab("Salary (in millions)") + xlab("Team") + ggtitle("NBA Teams ranked by Total Salary") + theme_minimal() + theme(legend.position="none")
+ 
+
+```
+## Points rankings and Efficiency
+Net, we will examine the total number of points scored by each time. This will be done by plotting the points in a bar plot.
+
+```{r}
+library(ggplot2)
+
+ggplot(teamfile, aes(x = reorder(team,points), y = points))  +
+  geom_bar(stat='identity', fill = "grey") + coord_flip() + geom_hline(aes(yintercept=mean(teamfile$points), colour="red"), size = 2)  + ylab("Total Points") + xlab("Team") + ggtitle("NBA Teams ranked by Total Points") + theme_minimal() + theme(legend.position="none")
+```
+
+Similary, we are interested in which teams have the highest efficiency.
+```{r}
+ggplot(teamfile, aes(x = reorder(team,efficiency), y = efficiency))  +
+  geom_bar(stat='identity', fill = "grey") + coord_flip() + geom_hline(aes(yintercept=mean(teamfile$efficiency), colour="red"), size = 2)  + ylab("Total Efficiency") + xlab("Team") + ggtitle("NBA Teams ranked by Efficiency Score") + theme_minimal() + theme(legend.position="none")
+```
+## Number of Fouls
+Finally, we are going to look at the total number of fouls that each time had. A higher number of fouls leads to more interesting games, so we will look for the teams that scored highest. Just as hockey is more interesting with fouls and fights, we can etend this philosophy to all sports. 
+
+```{r}
+ggplot(teamfile, aes(x = reorder(team,fouls), y = fouls))  +
+  geom_bar(stat='identity', fill = "grey") + coord_flip() + geom_hline(aes(yintercept=mean(teamfile$fouls), colour="red"), size = 2)  + ylab("Fouls") + xlab("Team") + ggtitle("NBA Teams ranked by Fouls") + theme_minimal() + theme(legend.position="none")
+```
+With this information, we know that the Phoenix Suns and the Memphis Grizzlies are the teams that courtside tickets should be purchased for.

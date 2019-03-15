@@ -1,0 +1,138 @@
+---
+title: "Warmup_4"
+author: "Josh Reinheimer"
+date: "21 Februar 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+#########################################
+########### Warmup 4 ####################
+
+library(readr)
+nba <- read_csv("data/nba2018.csv", col_types = list(
+  player = col_character(),
+  number = col_integer(),
+  team = col_character(),
+  position = col_factor(c('C', 'PF', 'PG', 'SF', 'SG')),
+  height = col_character(),
+  weight = col_integer(),
+  birth_date = col_character(),
+  country = col_character(),
+  experience = col_character(),
+  college = col_character(),
+  salary = col_double(),
+  rank = col_integer(),
+  age = col_integer(),
+  games = col_integer(),
+  games_started = col_integer(),
+  minutes = col_integer(),
+  field_goals = col_integer(),
+  field_goals_atts = col_integer(),
+  field_goals_perc = col_double() ,
+  points3 = col_integer(),
+  points3_atts = col_integer(),
+  points3_perc = col_double(),
+  points2 = col_integer(),
+  points2_atts = col_integer(),
+  points2_perc = col_double(),
+  effective_field_goal_perc = col_double(),
+  points1 = col_integer(),
+  points1_atts = col_integer(),
+  points1_perc = col_double(),
+  off_rebounds = col_integer(),
+  def_rebounds = col_integer(),
+  assists = col_integer(),
+  steals = col_integer(),
+  blocks = col_integer(),
+  turnovers = col_integer(),
+  fouls = col_integer(),
+  points = col_integer()
+)
+  
+)
+######2######
+
+# converting all rookies "R" to having 0 years
+# of experience
+nba$experience[nba$experience =="R"] = 0
+# converting the column experience to being of
+# type integer
+nba$experience <- as.integer(nba$experience)
+# converting salary from dollars to millions of dollars
+nba$salary <- nba$salary/1000000
+summary(nba$salary)
+# giving the column position more descriptive names
+nba$position <- mapvalues(nba$position, from = c('C', 'PF', 'PG', 'SF', 'SG'), to = c("center", "power_fwd", "point_guard", "small_fwd", "shoot_guard"))
+
+######3######
+
+# here we are looking to answer some questions
+# that will have us utilizing subscripting
+length(na.omit(nba$college[nba$college == "University of California, Los Angeles"]))
+# 14
+length(nba$college[nba$college == "University of California, Berkeley"])
+# 0
+sort(nba$weight)[length(nba$weight)]
+# 290
+mean(nba$weight)
+# 219.9119
+median(nba$weight)
+# 220
+median(nba$experience[nba$experience > 10])
+# 12
+median(nba$salary[nba$position == 'shoot_guard'])
+median(nba$salary[nba$position == 'point_guard'])
+median(nba$salary[nba$position == 'power_fwd' & nba$age >= 30 & nba$weight >= 240])
+# 8
+# create a sub dataframe
+gsw <- nba[nba$team == 'GSW',][,c('player', 'position', 'height', 'weight', 'age')]
+# to display the sub data frame
+head(gsw)
+nba$missed_field_goals <- nba$field_goals_atts*(1-nba$field_goals_perc)
+nba$missed_free_throws <- ((nba$points3_atts - nba$points3) + (nba$points2_atts - nba$points2)) 
+nba$rebounds <- nba$off_rebounds + nba$def_rebounds
+Efficiency <- function(x){
+  total <- (nba$points[nba$player == x] + nba$rebounds[nba$player == x] + nba$assists[nba$player == x] + nba$steals[nba$player == x]+
+    nba$blocks[nba$player == x] - nba$missed_free_throws[nba$player == x] - nba$missed_field_goals[nba$player == x] -
+    nba$turnovers[nba$player == x])/nba$games[nba$player == x]
+  return(total)
+}
+nba$Efficiency <- Efficiency(nba$player)
+#Display top ten players with highest Efficiency number
+topten <- nba[,c("player", "team", "salary", "Efficiency")]
+topten <- topten[order(topten$Efficiency, decreasing = TRUE),]
+print(topten[1:11,])
+# display players with negative efficiency number
+print(nba$player[nba$Efficiency < 0])
+
+#########5###########
+# Does a more efficient player have a higher salary?
+plot(topten$Efficiency, topten$salary)
+# No does not appear so
+
+# Is an older player more efficient?
+plot(nba$age, nba$Efficiency)
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

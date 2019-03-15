@@ -1,0 +1,577 @@
+---
+title:Lab 7:Simple Functions and Conditionals
+subtitle:Stat 133
+author:"Josh Reinheimer"
+fontsize:12pt
+urlcolor:blue
+output:html_notebook
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+In this lab, we will be looking at two of the most important aspect of programming: functions and conditionals. Functions are a mapping tool that allow us to generalize and abstract some rpocess to work in more general situations, while conditional statements allow for a greater level of expressivity during coding. It would be impossible to solve the number of problems that we can if these two tools were not available.
+In order to better learn the functionality of the R programming language, we will solve a number of problems. These will build upon the things learned in previous homework assignments and labs, solidifying the structure and functionality of this language.
+
+Before starting to use functions, we must first define what exactly they are. In a programming paradigm, we can say that a function is a set of steps that can be executed for a number of different values via a call. This means that we
+1. Need to have some name to call
+2. Have some variables that must be associated with the call
+3. Require some abstracted code that functions for all given input
+
+In R, we define a function as follows
+```{r}
+name <-   function(x){
+  # some programming logic
+}
+
+```
+With this definition, we can, for example, define a function to calculate the area of a rectange
+```{r}
+#' @title area of rectangle
+#' @description calculates the area of a     rectangle
+#' @param len length of the rectangle (numeric)
+#' @param wid width of the rectangle (numeric)
+#' @return computed area
+rect_area <- function(len = 1, wid = 1) {
+  if (len < 0) {
+    stop("len must be positive")
+  }
+  if (wid < 0) {
+    stop("wid must be positive")
+  }
+  area <- len * wid
+  return(area)
+}
+```
+In the code that follows, we will be looking at some intrinsic properties that are associated with functions. More specifically we will be showing that in general, the composition of functions is not a commutatative. This means that when one applies multiple functions to a specific input, the order of the function evaluation is important.
+
+```{r}
+#' @title simple mathematical function
+#' @description simple quadratic function to test ones function writing ability
+#' @param x real valued number (numeric)
+#' @return the square of the param x
+f <- function(x){
+  return(x^2)
+}
+
+#' @title simple mathematical function
+#' @description simple linear function to test ones function writing ability
+#' @param x real valued number (numeric)
+#' @return 3x+5
+
+g <-  function(x){
+  return(2*x + 5)
+}
+
+
+#' @title function composition 2
+#' @description testing the composition of two functions
+#' @param x function g evaluated at x (numeric)
+#' @return f of g
+fog <- function(x){
+  return(f(g(x)))
+}
+
+#' @title function composition 1
+#' @description testing a composite function
+#' @param x function f evaluated at x (numeric)
+#' @return g of f
+gof <- function(x){
+  return(g(f(x)))
+}
+```
+We can test this by showing that f(g(x)) != g(f(x))
+```{r}
+print(fog(2))
+print(gof(2))
+```
+Clearly, the two functions are not the same. Perhaps 2 is a special case
+```{r}
+print(fog(-5/2))
+print(gof(-5/2))
+```
+While showing the output from two values is not rigorous proof, it verifies our statement to a reasonable degree.
+
+## Formula of pythagoras' theorem
+Pythagoras' theorem is the most well known of analytic geometric formulas. It gives us the length of the hypotenuse of a right triangle, given the other two sides. Analytically, it can be written as
+$$c = \sqrt{a^{2} + b^{2}}$$
+As a user defined function in R, this can be written as
+
+```{r}
+
+#' @title pythagoras' theorem
+#' @description the most famous geometric function in the world
+#' @param a side of the right triangle (numeric)
+#' @param b optional parameter. side of the right triangle (numeric)
+#' @return c the calculated hypotenuse of the right triangle
+ 
+pythagoras <- function(a, b = FALSE){
+  if(b == FALSE){
+    return(sqrt(2*a^2))
+  }
+  else{ 
+    return(sqrt(a^2 + b^2))
+  }
+}
+```
+
+For this particular function, it allows for one to consider the case where a = b. In this case, the user must only enter a single input parameter. Let us see an example of this
+```{r}
+# different leg values
+print(pythagoras(3,4))
+
+# same leg values
+print(pythagoras(4))
+```
+
+## Area of a circle
+The area of a circle is defined as
+$$A(r) = \pi r^{2}$$
+This is defined in a function as
+```{r}
+#' @title area of a circle
+#' @description gives the area of a circle
+#' @param radius radius of the circle. The radial value may only be positive (numeric)
+#' @return An area of the circle. Calculated as A = pi*r^2(numeric)
+
+circle_area <- function(radius = FALSE){
+  if(radius == FALSE){
+    return(pi)
+  }
+  if(radius == 0){
+    stop("The radius must be non-zero")
+  }
+  if(radius < 0){
+    stop("The radius must be non-negative")
+  }
+  else{
+    return(pi*(radius)^2)
+  }
+}
+```
+This particular representation of the function will work if no radial value is specified. In this case, it takes a standard value of 1. This will return the value of $$\pi$$.
+```{r}
+circle_area(5)
+circle_area()
+```
+
+## Surface area and volume of a cylinder
+Continuing along the same geometric vein, we will define functions for the surface area and the volume of a cylinder. As in the case of the circle's area, we will be providing standard values for when no input is specified.
+
+```{r}
+#' @title Area of a cylinder
+#' @description This function is used to calculate 
+#' the area of a cylinder. It uses a function call to the
+#' function circle_area
+#' @param radius the radial component of the cylinder (numeric)
+#' @param height the height of the cylinder. Must be a positive value (numeric)
+#' @return the area of a cylinder (numeric)
+cylinder_area <- function(radius = FALSE, height = FALSE){
+  if(height < 0){
+    stop("Please enter a valid height")
+  }
+  if(radius == FALSE & height == FALSE){
+    return(2 * pi  + 2 * circle_area())
+  }  
+  if(height == FALSE){
+    return(2 * pi *radius + 2 * circle_area(radius))
+  }
+  if(radius == FALSE){
+    return(2 * pi *height + 2 * circle_area())
+  }
+  else{
+    return(2 * pi *radius * height + 2 * circle_area(radius))
+  }
+}
+
+
+#' @title Volume of a cylinder
+#' @description This function is used to calculate 
+#' the volume of a cylinder. It uses a function call to the
+#' function circle_area
+#' @param radius the radial component of the cylinder (numeric)
+#' @param height the height of the cylinder. Must be a positive value (numeric)
+#' @return the volume of a cylinder (numeric)
+cylinder_volume <- function(radius = FALSE, height = FALSE){
+  if(height < 0){
+    stop("Please enter a valid height")
+  }
+  if(radius == FALSE & height == FALSE){
+    return(circle_area())
+  }  
+  if(height == FALSE){
+    return(circle_area(radius))
+  }
+  if(radius == FALSE){
+    return(height* circle_area())
+  }
+  else{
+    return(height * circle_area(radius))
+  }
+}
+```
+Since negative heights and radii are nonsensical, the functions will return error messages when these values are given as inputs
+```{r}
+# for the area of a cylinder
+print(cylinder_area())
+print(cylinder_area(2,3))
+print(cylinder_area(-2,1))
+print(cylinder_area(2,-1))
+print(cylinder_area(-2,-1))
+
+# for the volume of a cylinder
+print(cylinder_volume())
+print(cylinder_volume(3,10))
+print(cylinder_volume(10,3))
+print(cylinder_volume(-2,3))
+print(cylinder_volume(3,-2))
+```
+
+## Unit Conversion Formulas
+
+Another place where we can demonstrate the power of functions is with unit conversion. We us unit conversion on a daily basis, and ignoring it can lead to [dire consequences](https://en.wikipedia.org/wiki/Mars_Climate_Orbiter). 
+
+The first conversion function we will write is to convert miles to kilometers
+```{r}
+#' @title Miles to Kilometers convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of kilometers
+#' @param miles. Number of miles to be converted (numeric)
+#' @return kilometers. Converted number of miles (numeric)
+miles2kms <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(1.6)
+  }
+  else{
+  return(miles * 1.6)
+  }
+}
+miles <- seq(1,100,1)
+km <- c()
+for(i in miles){
+km <- c(miles2kms(i),km)
+}
+converted_values <- data.frame("miles" = miles, "kilometers" = sort(km))
+print(converted_values)
+
+
+```
+Next, we will write functions to calculate the number of liters in a given number of gallons and vice versa. 
+
+```{r}
+#' @title Gallons to Liters convertor
+#' @description Function to convert a given number
+#' of gallons to its corresponding number of liters
+#' @param gallons. Number of gallons to be converted (numeric)
+#' @return liters. Converted number of liters (numeric)
+gallons2liters <- function(gallons = FALSE){
+  if(gallons == FALSE){
+    return(3.78541)
+  }
+  else{
+    return(gallons * 3.78541)
+  }
+}
+
+#' @title Liter to Gallon convertor
+#' @description Function to convert a given number
+#' of liters to its corresponding number of gallons
+#' @param liters. Number of liters to be converted (numeric)
+#' @return gallons. Converted number of gallons (numeric)
+liters2gallons <- function(liters = FALSE){
+  if(liters == FALSE){
+    return(1/gallons2liters())
+  }
+  else{
+    return(liters/gallons2liters())
+  }
+}
+```
+To create a dataframe showcasing the function
+```{r}
+liters <-  c(c(1:9),seq(10,100,10))
+gallons <- c()
+for(i in 1:length(liters)){
+  gallons <- c(liters2gallons(liters[i]),gallons)
+}
+print(data.frame("liters" = liters, "gallons" = gallons))
+```
+The final conversion function will look at converting seconds to years. In particular, we will be looking at the following question: Can a newborn baby in the USA expect to live for one billion seconds?
+```{r}
+#' @title Seconds to years
+#' @description Converts a given number of seconds to 
+#' its corresponding number of years
+#' @param seconds. Given number of seconds (numeric)
+#' @return years. Corresponding number of years (numeric)
+seconds2years <- function(seconds = FALSE){
+  if(seconds == FALSE){
+    return(1/(365*24*3600))
+  }
+  else{
+    return(seconds/(365*24*3600))
+  }
+}
+print(seconds2years(1000000000))
+```
+Yes, a newborn baby can expect to live one billion seconds.
+
+## Polynomials
+One of the most fundamental processes in applied mathematics is determining the zeros of a polynomial. The easiest way to tell if a polynomial has a zero is to view the graph of the polynomial. We will look at the graphs of different functions
+```{r}
+
+#' @title Searching for the zeros of polynomials
+#' @description We will be looking at three different
+#' polynomials and seeing if the graph of these polynomails
+#' cross the x axis (if there is a value where the function is zero)
+#' @param x. independent variable (numeric)
+#' @return f. dependent variable (numeric)
+poly1 <- function(x){
+  return(x ^ 3)
+}
+poly2 <- function(x){
+  return((x^2 - 1)*(x+3)^3)
+}
+poly3 <- function(x){
+  return((x^2 - 1)*(x^2 - 9))
+}
+# plots for the 3 polynomials
+x <- seq(-4, 4, length.out = 20)
+plot(x, poly1(x), type = 'l', lwd = 3, col = "#FB7215", las = 1)
+abline(h = 0, v = 0, col = '#888888aa', lwd = 1.5)
+title(main = expression(paste(f(x), ' = ', x^3)))
+
+plot(x, poly2(x), type = 'l', lwd = 3, col = "#FB7215", las = 1)
+abline(h = 0, v = 0, col = '#888888aa', lwd = 1.5)
+title(main = expression(paste(f(x), ' = ', (x^2-1)(x+3)^3)))
+
+plot(x, poly3(x), type = 'l', lwd = 3, col = "#FB7215", las = 1)
+abline(h = 0, v = 0, col = '#888888aa', lwd = 1.5)
+title(main = expression(paste(f(x), ' = ', (x^2 - 1)(x^2 - 9))))
+```
+## If conditionals
+Conditional statements are a powerful form of logic that allows one to solve a wider branch of problems. As an example, we will create a function that "squishes" numbers into the interval [0,100]
+```{r}
+#' @title interval guardian
+#' @description Checks if a given value falls within
+#' the interval[0,100]. If it doesn't, then it is shrunk
+#' to fit within the interval
+#' @param x. Real valued variable (numeric)
+#' @return y. Value in interval [0,100] (numeric)
+
+interval_guardian <- function(x){
+  if(x > 100){
+    return(100)
+  }
+  else if(x < 0){
+    return(0)
+  }
+  else{
+    return(x)
+  }
+}
+print(interval_guardian(-100))
+print(interval_guardian(101))
+```
+Next, we will write 2 functions. One will test is an integer is even, while the other tests if an integer is odd
+```{r}
+#'@title Even number checker
+#'@description Checks whether a given numerical value
+#'is even or odd. Even values will return TRUE, while
+#'odd values will return FALSE. Character values will 
+#'return 'NA'
+#'@param x. Integer value (numeric)
+#'@return y. Boolean value (BOOL)
+is_even <- function(x){
+  if(is.character(x) == TRUE){
+    return(NA)
+  }
+  
+  else if( x%%1 != 0){
+    return("Please enter only integer values")
+  }
+  else{
+    if(x %% 2 == 0){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+      }
+  }
+}      
+      
+#'@title Odd number checker
+#'@description Checks whether a given numerical value
+#'is even or odd. Odd values will return TRUE, while
+#'even values will return FALSE. Character values will 
+#'return 'NA'
+#'@param x. Integer value (numeric)
+#'@return y. Boolean value (BOOL)
+is_odd <- function(x){
+  if(is.character(x) == TRUE){
+    return(NA)
+  }
+  
+  else if( x%%1 != 0){
+    return("Please enter only integer values")
+  }
+  else{
+    if(x %% 2 != 0){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+}
+```
+To test these functions
+```{r}
+#for even values
+print(is_even(10))
+print(is_even(33))
+print(is_even('a'))
+
+#for odd values
+print(is_odd(1))
+print(is_odd(4))
+print(is_odd('a'))
+
+```
+Using the logic of If, If Else, and Else, we will write a function that will convert a numerical value into a letter grade
+```{r}
+
+#'@title Grade convertor
+#'@description Takes a numerical value and returns the 
+#'letter grade the corresponds to that given numerical
+#'value
+#'@param score. Integer value (numeric)
+#'@return y. Letter grade (character)
+grade <- function(score){
+  if(score > 100 | score < 0){
+    stop("Please enter a valid score. The score must be a number between 0 and 100.")
+  }
+  else{
+  if(90 <= score  & score <= 100){
+    return("A")
+} else if(80 <= score & score < 90){
+    return("B")
+} else if (70 <= score & score < 80){
+    return("C")
+} else if(60 <= score & score < 70){
+    return("D")
+} else if(score < 60){
+    return("F")
+}
+  }
+}
+
+
+```
+Testing this function, we find it performs as expected
+```{r}
+# grade "A"
+grade(score = 90)
+
+# grade "B"
+grade(score = 89.9999)
+
+# grade "C"
+grade(score = 70.0000001)
+
+# grade "F"
+grade(score = 50)
+```
+Sometimes using a long set of if/then statements becomes cumbersome. In these cases, a switch statement is better. In a switch statement, a particular action is executed when a determined variable is given. Here, we will create a conversion function. One will give a certain number of miles and one of the following character strings: "km", "ft", "yd", "m". The function will then convert to the equivalent number of meters in that particular metric. 
+```{r}
+
+#' @title Miles to inches convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of inches
+#' @param miles. Number of miles to be converted (numeric)
+#' @return inches. Converted number of miles (numeric)
+miles2inches <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(63360)
+  }
+  else{
+    return(miles * 63360)
+  }
+}
+
+#' @title Miles to feet convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of feet
+#' @param miles. Number of miles to be converted (numeric)
+#' @return feet. Converted number of miles (numeric)
+miles2feet <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(5280)
+  }
+  else{
+    return(miles * 5280)
+  }
+}
+
+#' @title Miles to yards convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of yards
+#' @param miles. Number of miles to be converted (numeric)
+#' @return yards. Converted number of miles (numeric)
+miles2yards <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(1760)
+  }
+  else{
+    return(miles * 1760)
+  }
+}
+
+#' @title Miles to meters convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of meters
+#' @param miles. Number of miles to be converted (numeric)
+#' @return meters. Converted number of miles (numeric)
+miles2meters <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(1/0.00062137)
+  }
+  else{
+    return(miles /0.00062137)
+  }
+}
+
+
+#' @title Miles to kilometers convertor
+#' @description Function to convert a given number
+#' of miles to its corresponding number of kilometers
+#' @param miles. Number of miles to be converted (numeric)
+#' @return kilometers. Converted number of miles (numeric)
+miles2kms <- function(miles = FALSE){
+  if(miles == FALSE){
+    return(1/0.62137)
+  }
+  else{
+    return(miles /0.62137)
+  }
+}
+
+convert <- function(x,to){
+  switch(to, # The expression to be evaluated.
+         "in" = return(miles2inches(x)),
+         "ft" = return(miles2feet(x)),
+         "yd" = return(miles2yards(x)),
+         "m" = return(miles2meters(x)),
+         "km" = return(miles2kms(x)),
+         return(miles2kms(x)))
+}
+```
+To test this function
+```{r}
+print(convert(3,"in"))
+print(convert(3,"ft"))
+print(convert(3,"yd"))
+print(convert(3,"m"))
+print(convert(3,"km"))
+```
+
+
+

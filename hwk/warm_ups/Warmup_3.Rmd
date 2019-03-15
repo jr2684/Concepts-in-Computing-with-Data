@@ -1,0 +1,104 @@
+---
+title: "warmup03-josh-reinheimer"
+author: "Josh Reinheimer"
+date: "20 Februar 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Create the dataset. The condition header = TRUE transforms the first column into the header names
+github <- 'https://github.com/ucb-stat133/stat133-fall-2018/'
+repo <- 'raw/master/data/saratoga.txt'
+house <- read.table(paste0(github, repo), sep = "\t", header = TRUE)
+libaray(plyr)
+
+
+# Summary of column Price
+summary(house$Price)
+
+# Histogram of the housing prices
+hist(house$Price)
+
+# Log transformation of prices and ccreation of a new column
+# for these transformed values
+house$log_Price <- log(house$Price)
+summary(house$log_Price)
+hist(house$log_Price)
+
+# Determining the number of houses that are "cheap"
+cheap <- house$log_Price< 10.5
+length(cheap)
+# Drop the rows(houses) that appear in the array "cheap"
+house <- house[!cheap,,drop = TRUE]
+
+# Explore the Living Area
+summary(house$Living.Area)
+hist(house$Living.Area)
+
+# Transform the Living Area values
+house$log_Living.Area <- log(house$Living.Area)
+# The value of approximately 6.8 in log_Living.Area corresponds to approximately 800-1000 sq. feet
+# in the column Living.Area
+
+# Here we will transfrom the column Bedrooms
+# into a categorical data, containing the values
+# <2, 3, 4, and >5
+BR <- house$Bedrooms
+# Replacing values <2 or > 5 with the corresponding strings
+BR[BR > 5] = 5
+BR[BR < 2] = 2
+factor_BR <- factor(BR, level = c(2, 3, 4, 5), labels = c("<2", "3", "4", ">5"), ordered = TRUE)
+summary(factor_BR)
+
+# Plot of the price against living area
+my_colors <- c('aquamarine3', 'darkgoldenrod2', 'coral2', 'mediumorchid3')
+br_colors <- mapvalues(factor_BR, c("<2", "3", "4", ">5"), my_colors) 
+
+plot( Price ~ Living.Area, data = house, log = "xy", main = "",
+      xlab = "Living Area (log sq ft)", ylab = "Price (log $)",
+      col = br_colors, pch = 19, cex = 0.4)
+legend("bottomright", fill = my_colors, legend = levels(factor_BR),
+       title = "# Bedrooms", cex = 0.75)
+# Number of fireplaces
+# First we transform the number of fireplaces 
+# into categorical data. the value 0 is replaced with None
+# and any value greater than 0 with At least 1
+FP <- house$Fireplaces
+FP[FP > 0] = 'At least 1'
+FP[FP == 0] = 'None'
+factor_FP <- factor(FP)
+summary(factor_FP)
+house$factor_FP <- factor_FP
+house$PPSF <- house$Price/house$Living.Area
+
+my_colors1 <- c('aquamarine3', 'darkgoldenrod2')
+fp_colors <- mapvalues(factor_FP, c('None', 'At least 1'), my_colors1) 
+
+
+plot(house$Price, house$PPSF,log = "xy", main = "",
+     xlab = "Price ($)", ylab = "Price per square foot ($)",
+     col = fp_colors, pch = 19, cex = 0.4)
+legend("bottomright", fill = my_colors1, legend = levels(factor_FP),
+       title = "# of fireplaces", cex = 0.75)
+
+
+
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

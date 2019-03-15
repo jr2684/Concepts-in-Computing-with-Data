@@ -1,0 +1,177 @@
+---
+title: "Lab-09-josh-reinheimer"
+author: "Josh Reinheimer"
+date: "6 März 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+states <- rownames(USArrests)
+# to determine the number of letters in each state's name
+num_chars <- nchar(states)
+
+```
+
+Many times, the data that one recieves is not just numerical, but contains words as well. In a programming setting, we call words strings. In this lab we will be considering string manipulation.
+Being able to manipulate strings is of utmost importance for anyone working with data. Because of the inconsistencies and expressibility of natural language, it is sometimes difficult to effectively work with string data.
+
+## Appending strings
+The first task we are interested in is taking disparate strings and appending them to another. In R this is accomplished through the subroutine paste().
+```{r}
+print(paste('a','b','c','d'))
+```
+Using the USArrest dataset, we will examine some of the things possible with the paste subroutine. First, we will take the first five states and write the number of letters in each state's name
+```{r}
+print(paste(head(states), '=', nchar(head(states))))
+```
+Next, the names of the first 5 states will be collapsed into the same string.
+
+```{r}
+print(paste(head(states), collapse = ''))
+```
+## Substrings
+Sometimes we are interested in only a part of a string. When dealing with NLP, we are, for example, generally only interested in the root of a word. This is the process of finding a substring. In R this is accomplished with the substr() subroutine
+```{r}
+print(substr('Berkeley',1,3))
+```
+To shorten the state names so that they contain only the first three letters
+```{r}
+print(substr(states,1,3))
+```
+To contain only the last three letters
+```{r}
+print(substr(states,nchar(states) - 2, nchar(states))
+)
+```
+To contain the first letter and the last three letters
+```{r}
+print(paste(substr(states,1,1),substr(states,nchar(states) - 2, nchar(states)),sep = ''))
+```
+
+To sort the states by the number of characters in each name
+```{r}
+state_lengths <- table(num_chars)
+states_list <- list()
+for(i in type.convert(names(state_lengths),"integer")){
+  states_list[paste(i,"chars",sep = '-')] <-  paste(states[num_chars == i], collapse = ", ")
+}
+```
+
+## Converting From Fahrenheit Degrees
+In lab 7, we considered the conversion of temperature between different systems. 
+```{r}
+to_celsius <- function(x = 1) {
+  (x - 32) * (5/9)
+}
+
+to_kelvin <- function(x = 1) {
+  (x + 459.67) * (5/9)
+}
+
+to_reaumur <- function(x = 1) {
+  (x - 32) * (4/9)
+}
+
+to_rankine <- function(x = 1) {
+  x + 459.67
+}
+
+temp_convert <- function(x = 1, to = "celsius") {
+  switch(to,
+         "celsius" = to_celsius(x),
+         "kelvin" = to_kelvin(x),
+         "reaumur" = to_reaumur(x),
+         "rankine" = to_rankine(x))
+}
+```
+This function, temp_convert, will allow one to enter a string to call the correct conversion function. The question is, what happens if we include a string that has capitalized letters? To make our methods more robust, we have to be able to deal with text data that is both uppercase and lowercase. The standard procedure is to take all text data and make it lowercase. There are two R methods to do this: tolower() and casefold().In addition to placing characters in lowercase, casefold() also standardizes non-latin letters. This is important when dealing with text in other languages.
+We modify temp_convert by adding a casefold subroutine
+```{r}
+
+temp_convert <- function(x = 1, to = "celsius") {
+  switch(casefold(to),
+         "celsius" = to_celsius(x),
+         "kelvin" = to_kelvin(x),
+         "reaumur" = to_reaumur(x),
+         "rankine" = to_rankine(x))
+}
+
+```
+
+## Names of files
+
+When dealing with large projecs, we may require a number of different outputs. When creating these outputs, we may want them to differ only by a trial run or by the input parameters. To distinguish them, the file name must include this information. Below are three ways of creating dynamically named outputs
+
+```{r}
+#1
+b = c()
+for(i in 1:10){
+  b <- c(b,paste0("file",i,".csv"))
+}
+print(b)
+#2
+paste0("file",1:10,".csv")
+#3
+paste("file",1:10,".csv",sep = '')
+```
+## cat() function
+With the cat() function, one can write lines to a datafile. This is done as seen below
+
+```{r}
+# name of output file
+outfile <- "output.txt"
+
+# writing to 'outfile.txt'
+cat("---",file = outfile)
+cat("\n", file = outfile, append = TRUE)
+cat("title: \"Some title\"", file = outfile, append = TRUE)
+cat("\n", file = outfile, append = TRUE)
+cat("author: \"your name\"", file = outfile, append = TRUE)
+cat("\n", file = outfile, append = TRUE)
+cat("date: \"today's date\"", file = outfile, append = TRUE)
+cat("\n", file = outfile, append = TRUE)
+cat("output: html_document", file = outfile, append = TRUE)
+cat("\n", file = outfile, append = TRUE)
+cat("---",file = outfile, append = TRUE)
+cat("\n\n", file = outfile, append = TRUE)
+
+cat("This is the first line", file = outfile, append = TRUE)
+# insert new line
+cat("\n", file = outfile, append = TRUE)
+cat("A 2nd line", file = "output.txt", append = TRUE)
+# insert 2 new lines
+cat("\n\n", file = outfile, append = TRUE)
+cat("\nThe quick brown fox jumps over the lazy dog\n",
+    file = outfile, append = TRUE)
+```
+## Valid Color Names
+The R function colors() contains the english names of 657 colors. The following function is used to test whether a given string is a color in this subroutine.
+
+
+
+```{r}
+is_color = function(x){
+  if(x %in% colors()){
+    return(TRUE)
+  } else{
+    return(FALSE)
+  }
+}
+print(is_color("yellow"))
+print(is_color("blu"))
+print(is_color("turkuoise"))
+```
+
+The fuction above can be modified to produce a scatter plot of random points when a valid color is given.
+```{r}
+is_color <- function(color){
+  if(color %in% colors()){
+    plot(runif(50,-1,1),runif(50,-1,1))
+  }
+  else
+    stop(paste("invalid color",color, sep = " "))
+}
+```

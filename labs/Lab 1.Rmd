@@ -1,0 +1,88 @@
+---
+title: "lab01-josh-reinheimer"
+author: "josh reinheimer"
+date: "15 Februar 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting started
+The purpose of this notebook will be threefold: First, I will be trying to gain more experience in writing R markup documents. Second, I will be familiarizing myself with the R programming language and RStudio. Thirdly, I will be working through the lab and completing all small assignments that are given.
+
+
+### Your Turn # 1
+```{r first constant}
+cellphone <- 80
+transportation <-  20
+groceries <- 527
+gym <- 10
+rent <- 1500
+other <- 83
+total <- cellphone + transportation + groceries + gym + rent + other
+total
+semester = total * 5
+year = semester * 2
+semester
+total
+```
+
+### Your turn #2
+```r{second}
+expenses = c(cellphone,transportation,groceries, gym, rent, other)
+sorted_expenses <- sort(expenses, decreasing = TRUE)
+xx <- barplot(sorted_expenses,names.arg = c("rent", "groceries", "other", "cell", "trans.", "gym"),cex.names=.5)
+text(x = xx, y = sorted_expenses, label = sorted_expenses, cex = 0.8, col = "red")
+```
+### Your turn #3
+```r{third}
+hypotenuse =  sqrt(3^2 + 4^2)
+print(hypotenuse)
+```
+### Your turn # 4
+```r{fourth}
+#considering a fair coin
+n <- 5
+k <- 2
+p <- .5
+nchoosek <-  factorial(n)/(factorial(k) * factorial(n-k))
+print(nchoosek)
+binomial_factorial <-  nchoosek*(p^n)
+print(binomial_factorial)
+binomial_choose <- choose(n,k)*(p^n)
+print(binomial_choose)
+
+#considering a fair coin
+n_d <-10
+k_d <- 3
+p_d <- .167
+
+binomial_die = choose(n_d,k_d)*(p_d^k_d)*((1-p_d)^(n_d-k_d))
+print(binomial_die)
+# 2 heads in 5 fair coin tosses
+print(dbinom(2,5,.5))
+# 3 6s in 3 fair die tosses
+print(dbinom(3,3,.167))
+# more than 3 heads in 5 tosses of a biased coin (35 % chance of heads)
+print(sum(dbinom(4:5,5,.35)))
+```
+### Your turn #5
+```r{fifth}
+install.packages(c("stringr", "RColorBrewer", "XML"))
+
+
+x <-  c(-3:3)
+print(3*x^2 + 4*x + 8)
+
+```
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

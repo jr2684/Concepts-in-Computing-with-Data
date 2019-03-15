@@ -1,0 +1,187 @@
+---
+title: "Warm up 5"
+author: "Josh Reinheimer"
+date: "6 März 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+##Introduction
+In this assignment, we will be writing a number of different mathematical functions
+
+## Gaussian function
+The gaussian function is one of the most widely used functions in science and mathematics. It is defined as
+\[ 
+g(x) = \frac{1}{\sigma \sqrt{2 \pi}}{e^{{-\frac{1}{2}(\frac{x-\mu}{\sigma})}}}^{2}   
+\]
+We define our gaussian function as
+```{r gaussian}
+gaussian <- function(s,m,x){
+  if(s <= 0){
+    stop("Error. Please enter valid parameter values")
+
+  }
+  else{
+  return((1/(s*sqrt(2*pi)))*exp(-.5*((x-m)/s)^2))
+  }
+}
+
+``` 
+Comparing our function to the R function dnorm(), we find
+```{r}
+dnorm(x = 1, mean = 2, sd = 2 ) == gaussian(2,2,1)
+```
+The curve can be showcased in the following graph
+```{r, echo = FALSE}
+x_values <- seq(-4.5,4.5,0.1)
+y_values <- gaussian(2,0,x_values)
+plot(x_values, y_values, las = 1, type = "l", lwd = 2)
+
+```
+Considering a number of different input parameters, we have the following graph
+```{r, echo = FALSE}
+library(ggplot2)
+g1 <- dnorm(seq(-5,5,.05),0,sqrt(.2))
+g2 <- dnorm(seq(-5,5,.05),0,sqrt(1))
+g3 <- dnorm(seq(-5,5,.05),0,sqrt(5))
+g4 <- dnorm(seq(-5,5,.05),-2,sqrt(.5))
+gaussians <- data.frame("n" = seq(-5,5,.05),"1" = g1, "2" = g2, "3" = g3,"4" = g4)
+ggplot(gaussians, aes(n, y = value)) +
+  geom_line(aes(y = g1, col = "1"), size = 1) +
+  geom_line(aes(y = g2, col = "2"), size = 1) +
+  geom_line(aes(y = g3, col = "3"), size = 1) +
+  geom_line(aes(y = g4, col = "4"), size = 1) +
+  scale_color_manual(labels = c(expression(paste(mu,"=0, ",sigma^2, "= 0.2")), expression(paste(mu,"=0, ",sigma^2, "= 1.0")),
+                          expression(paste(mu,"=0, ",sigma^2, "= 5.0")),expression(paste(mu,"=0, ",sigma^2, "= 0.5"))), values = c("blue", "red", "yellow", "green")) +
+  xlab(expression(x)) + ylab(expression(paste(phi[mu,sigma^{2}],"(x)"))) + theme_bw()+
+  scale_y_continuous(breaks = round(seq(0,1, by = 0.2),1)) +
+theme(legend.justification = c(1, 1), legend.position = c(1, 1),legend.title = element_blank()) 
+
+```
+
+
+
+## Descriptive Statistics
+One of the most important tools of exploratory analysis are looking at the descriptive statistics of a particular array. Through this information, one gains a basic understanding about the values inside the array and its values. There are many different metrics that can be used for the descriptive statistics of an array, but some standard values include:
+
+  * $\texttt{min}$: minimum
+  * $\texttt{q1}$: first quartile(Q2)
+  * $\texttt{median}$: median
+  * $\texttt{mean}$: mean
+  * $\texttt{max}$: max
+  * $\texttt{range}$: range or span( max - min)
+  * $\texttt{iqr}$: interquartile range (IQR)
+  * $\texttt{sd}$: standard deviation
+
+A function will be written that outputs these values for a given numerical vector. If the inputted vector is not numeric, then an error message will be raised
+
+```{r}
+descriptive <- function(input,na.rm = FALSE){
+  info = list("min" = min(input),
+              "first quartile" =  quantile(input, 0.25),
+              "median" = median(input),
+              "mean" = mean(input),
+              "thrid quartile" = quantile(input, 0.75),
+              "max" = max(input),
+              "range" = max(input) - min(input),
+              "interquartile range" = IQR(input),
+              "standard deviation" = sd(input))
+  return(info)
+}
+```
+Testing to make sure that this function works
+```{r}
+descriptive(rnorm(100))
+descriptive(letters)
+```
+## Two Given Points
+Given two points $(x_{1},y_{1})$ and $(x_{2},y_{2})$, we are interested in finding out more about these two points. What is the distance between them? When connecting the 2 points with a line, what is the slope of this line? Where does the midpoint lie? Where does the intercept of the line connecting these two points lie? In order to find this all out, a number of functions will be written. These functions will then be called and their results will be graphed.
+```{r}
+#' @title point distance
+#' @description returns the distance between points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y the distance between p1 and p2
+find_distance <- function(p1,p2){
+  return(sqrt((p2[2] - p1[2])^2 + (p2[1] - p1[1])^2))
+}
+
+
+#' @title midpoint location
+#' @description returns the midpoint location between points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y midpoint between p1 and p2
+find_midpoint <- function(p1,p2){
+  return(c((p1[1] + p2[1])/2, (p2[1] + p2[2])/2))
+}
+
+#' @title slope finder
+#' @description finds the slope of the line connecting points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y the slope of the line connecting p1 and p2
+
+find_slope <- function(p1,p2){
+  return((p2[2] - p1[2])/(p2[1] - p1[1]))
+}
+
+#' @title intercept calculator
+#' @description finds the y intercept of the line formed from points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y the y intercept of the line formed from p1 and p2
+
+find_intercept <- function(p1,p2){
+  return(p1[2] - find_slope(p1,p2)*p1[1])
+}
+
+#' @title line finder
+#' @description returns the information of the line formed by points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y the list containing the intercept, and slope of the line from p1 and p2
+
+find_line <- function(p1,p2){
+  return(list("intercept" = find_intercept(p1,p2),
+              "slope" = find_slope(p1,p2)))
+}
+
+#' @title line information
+#' @description returns information about the line between points p1 and p2
+#' @param p1 (vector)
+#' @param p2 (vector)
+#' @return y list containing the distance between points, the midpoint, and the intercept of the line formed by p1 and p2
+
+info_points <- function(p1,p2){
+  return(list("distance" = find_distance(p1,p2),
+              "midpoint" = find_midpoint(p1,p2),
+              "intercept" = find_intercept(p1,p2),
+              "results" = find_slope(p1,p2)))
+  
+}
+```
+With the functions defined, we will use them to plot two points, along with the midpoint, and the line formed from these 2 points
+```{r}
+
+p1 <- c(-2, 4)
+p2 <- c(1, 2)
+
+plot.new()
+# depending on your chosen points you may have to set different limits
+plot.window(xlim = c(-3, 3), ylim = c(0, 5))
+axis(side = 1)
+axis(side = 2, las = 1)
+points(p1[1], p1[2], cex = 1.5, col = "#FF8834", pch = 19)
+points(p2[1], p2[2], cex = 1.5, col = "#FF8834", pch = 19)
+# midpoint (here you should use the midpoint outputs of your function)
+points(-1/2, 3, cex = 1.5, pch = "x", col = "#E16868")
+# slope and intercept (here you should use the outputs of your function)
+abline(a = 8/3, b = -2/3, col = "#FF883477", lwd = 3)
+title(main = expression(paste(y, ' = ', (-2/3) * x, ' + ', (8/3))))
+```
+
+
